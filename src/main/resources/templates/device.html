@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.w3.org/1999/xhtml">
+<head>
+    <meta charset="UTF-8">
+
+    <title>Title</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.0/css/bootstrap.min.css" integrity="sha384-9gVQ4dYFwwWSjIDZnLEWnxCjeSWFphJiwGPXr1jddIhOegiu1FwO5qRGvFXOdJZ4" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+</head>
+<body class="bg-dark">
+<div class="bg-dark text-center text-white">
+    <div class="text-left" >
+        <a th:href="'/'"><button class =" btn btn-primary">  На головну </button></a>
+    </div>
+    <div style="text-align: center">
+
+        <h1 th:text="${device.name}"  ></h1>
+        <h4 th:text="'ipAddress = ' + ${device.ipAddress}" ></h4>
+        <h4 th:text="'port = '+ ${device.port} " ></h4>
+        <p th:text="'quantityHR = '+ ${device.quantityHR} " ></p>
+        <p th:text="'quantityCR = '+ ${device.quantityCR} " ></p>
+        <p th:text="'quantityDR = '+ ${device.quantityDR} " ></p>
+        <p th:text="'quantityIR = '+ ${device.quantityIR} " ></p>
+
+        <div id="editDevice" >
+            <a th:href="'/device/del/'+ ${device.id}"><button class =" btn btn-primary m-1">  Delete </button></a>
+            <button class =" btn btn-primary m-1" onclick="edit('rename')" >  Rename </button>
+            <button class =" btn btn-primary m-1" onclick="edit('ip')" >  Change IP Address </button>
+            <button class =" btn btn-primary m-1" onclick="edit('port')" >  Change Port  </button><br>
+            <button class =" btn btn-primary m-1" onclick="edit('quantityHR')" > Change quantityHR  </button>
+            <button class =" btn btn-primary m-1" onclick="edit('quantityCR')" > Change quantityCR  </button>
+            <button class =" btn btn-primary m-1" onclick="edit('quantityDR')" > Change quantityDR  </button>
+            <button class =" btn btn-primary m-1" onclick="edit('quantityIR')" > Change quantityIR  </button>
+            <br>
+
+
+
+
+        </div>
+    </div>
+    <h3 style="text-align: center">Стан підключення: <b id="req"></b></h3>
+
+
+
+
+
+
+
+
+    <div class="container ">
+        <div class="row">
+
+            <div class="col-md-3 text-center text-white ">
+                <div style="text-align: center">
+                    <div id="divcreateHoldingRegister"  >
+                        <ul th:each="holdingRegister:${holdingRegisters}">
+                            <li>
+                                <h4   th:text="${holdingRegister.name} + ' address:' + ${holdingRegister.address}" ></h4>
+                                <snap> min:</snap><snap th:text="${holdingRegister.minVal}"></snap>
+                                <button class =" btn btn-primary m-1" th:id="${holdingRegister.id}" onclick="change('-')">-</button>
+                                <b th:id="${holdingRegister.id}" name="holdingRegister" >_</b>
+
+                                <button class =" btn btn-primary m-1" th:id="${holdingRegister.id}" onclick="change('+')">+</button>
+                                <snap> max:</snap>
+                                <snap th:text="${holdingRegister.maxVal}"></snap>
+                                <br>
+                                <a th:href="'/holdingRegister/del/'+ ${holdingRegister.id}+'/'+${device.id}"> Delete register</a>
+                                <div th:id="${holdingRegister.id} + '_holdingRegister'">
+                                    <button class =" btn btn-primary m-1"th:id="${holdingRegister.id}" onclick="changeInfoOfRegister('holdingRegister')">Change Info </button>
+                                </div>
+                            </li>
+                        </ul>
+                        <button class =" btn btn-primary m-1" onclick=createRegister('createHoldingRegister')>   Додайте адрес Holding регістра
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-3 text-center text-white">
+                <div id="divcreateInputRegister" >
+
+                    <ul th:each="inputRegister:${inputRegisters}">
+                        <li >
+                            <h4   th:text="${inputRegister.name}+', address:' + ${inputRegister.address}" ></h4>
+                            <b th:id="${inputRegister.id}" name="inputRegister" ></b>
+                            <br>
+                            <a th:href="'/inputRegister/del/'+ ${inputRegister.id}+'/'+${device.id}"> Delete register</a>
+                            <div th:id="${inputRegister.id} + '_inputRegister'">
+                                <button class =" btn btn-primary m-1" th:id="${inputRegister.id}" onclick="changeInfoOfRegister('inputRegister')">Change Name </button>
+                            </div>
+
+                        </li>
+                    </ul>
+                    <button class =" btn btn-primary" onclick=createRegister('createInputRegister')> Додайте адрес Input регістра</button>
+                </div>
+            </div>
+            <div class="col-md-3 text-center text-white">
+                <div id="divcreateDiscreteRegister" >
+                    <br>
+                    <ul th:each="discreteRegister:${discreteRegisters}">
+                        <li >
+                            <h4   th:text="${discreteRegister.name}+', address:' + ${discreteRegister.address}" ></h4>
+                            <b th:id="${discreteRegister.id}" name="discreteRegister" ></b>
+                            <br>
+                            <a th:href="'/discreteRegister/del/'+ ${discreteRegister.id}+'/'+${device.id}"> Delete register</a>
+                            <div th:id="${discreteRegister.id} + '_discreteRegister'">
+                                <button class =" btn btn-primary m-1" th:id="${discreteRegister.id}" onclick="changeInfoOfRegister('discreteRegister')">Change Name</button>
+                            </div>
+
+
+                        </li>
+                    </ul>
+                    <button class =" btn btn-primary m-1" onclick=createRegister('createDiscreteRegister')>    Додайте адрес Discrete регістра
+                    </button>
+                </div>
+            </div>
+            <div class="col-md-3 text-center text-white">
+                <div id="divcreateCoilsRegister" >
+                    <br>
+                    <ul th:each="coilsRegister:${coilsRegisters}">
+                        <li >
+                            <h4 th:href="'/coilsRegister/'+ ${coilsRegister.id}" th:text="${coilsRegister.name} + ',id:' + ${coilsRegister.id} + 'address--'+ ${coilsRegister.address}" ></h4>
+                            <button class =" btn btn-primary" onclick="toChange()" name="coilsRegister" th:id="${coilsRegister.id}"></button>
+                            <br>
+                            <a th:href="'/coilsRegister/del/'+ ${coilsRegister.id}+'/'+${device.id}"> Delete register</a>
+                            <div th:id="${coilsRegister.id} + '_coilsRegister'">
+                                <button class =" btn btn-primary" th:id="${coilsRegister.id}" onclick="changeInfoOfRegister('coilsRegister')">Change Name</button>
+                            </div>
+                        </li>
+                    </ul>
+                    <button class =" btn btn-primary" onclick=createRegister('createCoilsRegister')>Додайте адрес Coil регістра</button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+
+
+
+
+
+
+
+
+
+
+<script th:inline="javascript">
+
+
+    function toChange() {
+        let id = event.target.id;
+        let element = event.target;
+        let innerText = element.innerText;
+        $.ajax({
+            type:'PUT',
+            url: 'http://localhost:8080/write/coilsRegister/' +id + '/' + innerText,
+            success: function (data) {
+
+                element.innerText = data;
+            }
+        })
+    }
+    function changeInfoOfRegister(kindOfRegister) {
+        if(document.getElementById('UpdateName')== null
+            && document.getElementById('_submit')==null
+            && document.getElementById('UpdateMinValue')==null
+            && document.getElementById('UpdateMaxValue')==null){
+            let id = event.target.id;
+            let elementToAppend = document.getElementById(id + '_' + kindOfRegister);
+            let inputName = document.createElement('input');
+            inputName.setAttribute('type','text');
+            inputName.setAttribute('id','UpdateName');
+            inputName.setAttribute('placeholder', 'change name');
+            elementToAppend.appendChild(document.createElement('br'));
+            elementToAppend.appendChild(inputName);
+
+            if(kindOfRegister==='holdingRegister'){
+                let minVal = document.createElement('input');
+                minVal.setAttribute('type','text');
+                minVal.setAttribute('id','UpdateMinValue');
+                minVal.setAttribute('placeholder', 'change min value');
+                let  maxVal  = document.createElement('input');
+                maxVal.setAttribute('type','text');
+                maxVal.setAttribute('id','UpdateMaxValue');
+                maxVal.setAttribute('placeholder', 'change max value');
+                elementToAppend.appendChild(minVal);
+                elementToAppend.appendChild(maxVal);
+
+            }
+            let inputSubmit = document.createElement('input');
+            inputSubmit.setAttribute('type','submit');
+            inputSubmit.setAttribute('id','_submit');
+            elementToAppend.appendChild(inputSubmit);
+            let $submit = $('#_submit');
+            $submit.click(function () {
+                let registerData;
+                let $name = $('#UpdateName');
+                let name = $name.val();
+                $name.val('');
+                registerData = JSON.stringify({id, name});
+
+                if(kindOfRegister==='holdingRegister'){
+                    let $minVal = $('#UpdateMinValue');
+                    let minVal = $minVal.val();
+                    $minVal.val('');
+                    let $maxVal = $('#UpdateMaxValue');
+                    let maxVal = $maxVal.val();
+                    $maxVal.val('');
+                    registerData = JSON.stringify({id,name,minVal,maxVal});
+                }
+                console.log(registerData);
+
+                $.ajax({
+                    url: 'http://localhost:8080/setChanges/' + kindOfRegister,
+                    type: 'POST',
+                    data: registerData,
+                    contentType: 'application/json',
+                    success: function () {
+                        document.location.reload(true);
+                    }
+                })
+
+            })
+
+        }else {
+            if(document.getElementById('UpdateName') != null){ document.getElementById('UpdateName').remove()}
+            if(document.getElementById('_submit') != null){ document.getElementById('_submit').remove()}
+            if(document.getElementById('UpdateMinValue') != null){ document.getElementById('UpdateMinValue').remove()}
+            if(document.getElementById('UpdateMaxValue') != null){ document.getElementById('UpdateMaxValue').remove()}
+            changeInfoOfRegister(kindOfRegister);
+        }
+    }
+
+
+    function change( znak ) {
+        let elementsByName = document.getElementsByName('holdingRegister');
+        let id = event.target.id;
+
+        for (let i = 0; i < elementsByName.length; i++) {
+            let insertEle = elementsByName[i];
+            if(elementsByName[i].id===id){
+                let currentValue = elementsByName[i].innerText;
+                if (znak==='+'){currentValue++;}else if(znak==='-'){currentValue--;}
+                $.ajax({
+                    type:'PUT',
+                    url: 'http://localhost:8080/write/holdingRegister/' +id + '/' + currentValue,
+                    success: function (data) {
+                        insertEle.innerText = data;
+                    }
+                })
+            }
+
+        }
+
+
+
+
+
+
+
+    }
+
+    setInterval( function () {
+        let elementsByName;
+        elementsByName = document.getElementsByName('holdingRegister');
+        for(let i = 0; i<elementsByName.length; i++) {
+            let element = elementsByName[i];
+            let id = elementsByName[i].id;
+
+            listener(element, id,'holdingRegister');
+
+        }
+
+
+        elementsByName = document.getElementsByName('inputRegister');
+        for(let i = 0; i<elementsByName.length; i++) {
+            let element = elementsByName[i];
+            let id = elementsByName[i].id;
+
+            listener(element, id,'inputRegister');
+
+        }
+        elementsByName = document.getElementsByName('discreteRegister');
+        for(let i = 0; i<elementsByName.length; i++) {
+            let element = elementsByName[i];
+            let id = elementsByName[i].id;
+
+            listener(element, id,'discreteRegister');
+
+        }
+        elementsByName = document.getElementsByName('coilsRegister');
+        for(let i = 0; i<elementsByName.length; i++) {
+            let element = elementsByName[i];
+            let id = elementsByName[i].id;
+
+            listener(element, id,'coilsRegister');
+
+        }
+
+    },2000);
+    function listener( element, id, name ) {
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/"+ name + "/" + id ,
+            success: function (data) {
+                element.innerText = data;
+
+
+            }
+
+        })
+    }
+
+    function edit(idOfButton) {
+
+        if(document.getElementById("rename")==null
+            && document.getElementById("ip")==null
+            && document.getElementById("port")==null
+            && document.getElementById("quantityHR")==null
+            && document.getElementById("quantityCR")==null
+            && document.getElementById("quantityDR")==null
+            && document.getElementById("quantityIR")==null
+        ) {
+
+            let input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("id", idOfButton);
+            input.setAttribute("placeholder", idOfButton);
+            let inputSubmit = document.createElement("input");
+            inputSubmit.setAttribute("type", "submit");
+            inputSubmit.setAttribute("id", idOfButton+"btn");
+
+            document.getElementById("editDevice").appendChild(input);
+            document.getElementById("editDevice").appendChild(inputSubmit);
+        }else if(document.getElementById("rename")!=null){
+            document.getElementById("rename").remove();
+            document.getElementById("renamebtn").remove();
+            edit(idOfButton);
+        }else if(document.getElementById("ip")!=null){
+            document.getElementById("ip").remove();
+            document.getElementById("ipbtn").remove();
+            edit(idOfButton);
+
+        }else if(document.getElementById("port")!=null){
+            document.getElementById("port").remove();
+            document.getElementById("portbtn").remove();
+            edit(idOfButton);
+        }else if(document.getElementById("quantityHR")!=null){
+            document.getElementById("quantityHR").remove();
+            document.getElementById("quantityHRbtn").remove();
+            edit(idOfButton);
+        }else if(document.getElementById("quantityCR")!=null){
+            document.getElementById("quantityCR").remove();
+            document.getElementById("quantityCRbtn").remove();
+            edit(idOfButton);
+        }else if(document.getElementById("quantityDR")!=null){
+            document.getElementById("quantityDR").remove();
+            document.getElementById("quantityDRbtn").remove();
+            edit(idOfButton);
+        }else if(document.getElementById("quantityIR")!=null){
+            document.getElementById("quantityIR").remove();
+            document.getElementById("quantityIRbtn").remove();
+            edit(idOfButton);
+        }
+        let $idOfButton = $('#'+idOfButton+'btn');
+        $idOfButton.click(function () {
+            let id = [[${device.id}]];
+            let deviceData;
+            if(idOfButton ==="rename") {
+                let $name = $('#' + idOfButton);
+                let name = $name.val();
+                $name.val('');
+
+                deviceData = JSON.stringify({id, name});
+                $.ajax({
+                    url: 'http://localhost:8080/setName',
+                    type: 'POST',
+                    data: deviceData,
+                    contentType: 'application/json',
+                    success: function () {
+                        document.location.reload(true);
+                    }})
+            }
+            else if(idOfButton ==="ip") {
+                let $name = $('#' + idOfButton);
+                let ipAddress = $name.val();
+                $name.val('');
+
+                deviceData = JSON.stringify({id, ipAddress});
+                $.ajax({
+                    url: 'http://localhost:8080/setIpAddress',
+                    type: 'POST',
+                    data: deviceData,
+                    contentType: 'application/json',
+                    success: function () {
+                        document.location.reload(true);
+                    }
+
+
+
+
+
+                })
+
+            }
+            else if(idOfButton ==="port") {
+                let $name = $('#' + idOfButton);
+                let port = $name.val();
+                $name.val('');
+
+                deviceData = JSON.stringify({id, port});
+                $.ajax({
+                    url: 'http://localhost:8080/setPort',
+                    type: 'POST',
+                    data: deviceData,
+                    contentType: 'application/json',
+                    success: function () {
+                        document.location.reload(true);
+                    }
+
+
+
+
+
+                })
+
+            }else if(idOfButton ==="quantityHR") {
+                let $name = $('#' + idOfButton);
+                let quantityHR = $name.val();
+                $name.val('');
+
+                deviceData = JSON.stringify({id, quantityHR});
+                $.ajax({
+                    url: 'http://localhost:8080/setQuantityHR',
+                    type: 'POST',
+                    data: deviceData,
+                    contentType: 'application/json',
+                    success: function () {
+                        document.location.reload(true);
+                    }
+
+
+
+
+
+                })
+
+            }else if(idOfButton ==="quantityCR") {
+                let $name = $('#' + idOfButton);
+                let quantityCR = $name.val();
+                $name.val('');
+
+                deviceData = JSON.stringify({id, quantityCR});
+                $.ajax({
+                    url: 'http://localhost:8080/setQuantityCR',
+                    type: 'POST',
+                    data: deviceData,
+                    contentType: 'application/json',
+                    success: function () {
+                        document.location.reload(true);
+                    }
+
+
+
+
+
+                })
+
+            }else if(idOfButton ==="quantityIR") {
+                let $name = $('#' + idOfButton);
+                let quantityIR = $name.val();
+                $name.val('');
+
+                deviceData = JSON.stringify({id, quantityIR});
+                $.ajax({
+                    url: 'http://localhost:8080/setQuantityIR',
+                    type: 'POST',
+                    data: deviceData,
+                    contentType: 'application/json',
+                    success: function () {
+                        document.location.reload(true);
+                    }
+
+
+
+
+
+                })
+
+            }else if(idOfButton ==="quantityDR") {
+                let $name = $('#' + idOfButton);
+                let quantityDR = $name.val();
+                $name.val('');
+
+                deviceData = JSON.stringify({id, quantityDR});
+                $.ajax({
+                    url: 'http://localhost:8080/setQuantityDR',
+                    type: 'POST',
+                    data: deviceData,
+                    contentType: 'application/json',
+                    success: function () {
+                        document.location.reload(true);
+                    }
+
+
+
+
+
+                })
+
+            }
+        })
+
+    }
+    function createRegister(idOfButton) {
+
+        if(document.getElementById("createHoldingRegister")==null
+            && document.getElementById("createInputRegister")==null
+            && document.getElementById("createDiscreteRegister")==null
+            && document.getElementById("createCoilsRegister")==null) {
+            let input = document.createElement("input");
+            input.setAttribute("type", "text");
+            input.setAttribute("id", idOfButton);
+            input.setAttribute("placeholder", "address");
+            let inputName = document.createElement("input");
+            inputName.setAttribute("type", "text");
+            inputName.setAttribute("id", idOfButton+"Name");
+            inputName.setAttribute("placeholder", "name of address");
+            document.getElementById('div'+idOfButton).appendChild(document.createElement('br'));
+            document.getElementById('div'+idOfButton).appendChild(input);
+            document.getElementById('div'+idOfButton).appendChild(inputName);
+            if(idOfButton==='createHoldingRegister'){
+                let minVal = document.createElement("input");
+                minVal.setAttribute("type", "text");
+                minVal.setAttribute("id", idOfButton+"_minVal");
+                minVal.setAttribute("placeholder", "min value of HR");
+                let maxVal = document.createElement("input");
+                maxVal.setAttribute("type", "text");
+                maxVal.setAttribute("id", idOfButton+"_maxVal");
+                maxVal.setAttribute("placeholder", "max value of HR");
+                document.getElementById('div'+idOfButton).appendChild(document.createElement('br'));
+                document.getElementById('div'+idOfButton).appendChild(minVal);
+                document.getElementById('div'+idOfButton).appendChild(maxVal);
+
+            }
+            let inputSubmit = document.createElement("input");
+            inputSubmit.setAttribute("type", "submit");
+            inputSubmit.setAttribute("id", idOfButton+"btn");
+            document.getElementById('div'+idOfButton).appendChild(document.createElement('br'));
+            document.getElementById('div'+idOfButton).appendChild(inputSubmit);
+
+        }
+        else if(document.getElementById("createHoldingRegister")!=null){
+            document.getElementById("createHoldingRegister").remove();
+            document.getElementById("createHoldingRegisterbtn").remove();
+            document.getElementById("createHoldingRegisterName").remove();
+            document.getElementById("createHoldingRegister_minVal").remove();
+            document.getElementById("createHoldingRegister_maxVal").remove();
+            createRegister(idOfButton);
+        }
+        else if(document.getElementById("createInputRegister")!=null){
+            document.getElementById("createInputRegister").remove();
+            document.getElementById("createInputRegisterbtn").remove();
+            document.getElementById("createInputRegisterName").remove();
+            createRegister(idOfButton);
+
+        }
+        else if(document.getElementById("createDiscreteRegister")!=null){
+            document.getElementById("createDiscreteRegister").remove();
+            document.getElementById("createDiscreteRegisterbtn").remove();
+            document.getElementById("createDiscreteRegisterName").remove();
+            createRegister(idOfButton);
+        }
+        else if(document.getElementById("createCoilsRegister")!=null){
+            document.getElementById("createCoilsRegister").remove();
+            document.getElementById("createCoilsRegisterName").remove();
+            document.getElementById("createCoilsRegisterbtn").remove();
+            createRegister(idOfButton);
+        }
+
+        let $idOfButton = $("#" + idOfButton + "btn");
+        $idOfButton.click(function () {
+            let id = [[${device.id}]];
+            let addressData;
+            let $address = $('#' + idOfButton);
+            let address = $address.val();
+            $address.val('');
+            let $name = $('#' + idOfButton+"Name");
+            let name = $name.val();
+            $name.val('');
+            addressData = JSON.stringify({address, name});
+            if(idOfButton==='createHoldingRegister'){
+                let $minVal =$('#' + idOfButton + '_minVal');
+                let $maxVal =$('#' + idOfButton + '_maxVal');
+                let minVal = $minVal.val();
+                let maxVal = $maxVal.val();
+                $minVal.val('');
+                $maxVal.val('');
+                addressData = JSON.stringify({address, name, minVal, maxVal})
+            }
+            let url ;
+            if(idOfButton ==="createHoldingRegister"){url = 'http://localhost:8080/device/createHR/'+id}
+            else if (idOfButton ==="createInputRegister"){url = 'http://localhost:8080/device/createIR/'+id}
+            else if (idOfButton ==="createDiscreteRegister"){url = 'http://localhost:8080/device/createDR/'+id}
+            else if (idOfButton ==="createCoilsRegister"){url = 'http://localhost:8080/device/createCR/'+id}
+            $.ajax({
+                url: url,
+                type: 'POST',
+                data: addressData,
+                contentType: 'application/json',
+                success: function () {
+                    document.location.reload(true);
+                }
+            })
+
+
+        })
+
+    }
+
+    setInterval(function req() {
+        let id = [[${device.id}]];
+        let elementReq = document.getElementById('req');
+        $.ajax({
+            type: "GET",
+            url: "http://localhost:8080/request/"+id,
+            success: function (data) {
+                if(data === true){elementReq.style.setProperty('color','green');}
+                else{elementReq.style.setProperty('color','red');}
+                elementReq.innerText = data;
+            }
+        })
+    }, 3000);
+
+
+
+</script>
+
+
+</body>
+</html>
